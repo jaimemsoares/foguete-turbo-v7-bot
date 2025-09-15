@@ -12,6 +12,7 @@ import requests
 from flask import Flask, request, jsonify
 from datetime import datetime
 import logging
+import pytz
 
 # Configurar logging
 logging.basicConfig(level=logging.INFO)
@@ -19,6 +20,12 @@ logger = logging.getLogger(__name__)
 
 # Inicializar Flask
 app = Flask(__name__)
+
+# Define o fuso horário de Manaus
+manaus_tz = pytz.timezone('America/Manaus')
+
+# Obtém a hora atual no fuso horário de Manaus
+hora_manaus = datetime.now(manaus_tz)
 
 # Configurações do bot (variáveis de ambiente do Render)
 BOT_TOKEN = os.environ.get('BOT_TOKEN')
@@ -76,7 +83,7 @@ def format_tradingview_alert(data):
             ticker = data.get('ticker', 'N/A')
             action = data.get('action', 'SINAL')
             price = data.get('price', 'N/A')
-            time = data.get('time', datetime.now().strftime("%H:%M:%S"))
+            time = data.get('time', hora_manaus.strftime("%H:%M:%S"))
             timeframe = data.get('timeframe', 'N/A')
             strength = data.get('strength', 'N/A')
             details = data.get('details', 'Sinal confirmado!')
@@ -110,8 +117,17 @@ def format_simple_alert(text):
     Formata alertas simples de texto do TradingView
     """
     try:
+        if isinstance(data, dict):
+            # Verificar se tem campos específicos do TradingView
+            ticker = data.get('ticker', 'N/A')
+            action = data.get('action', 'SINAL')
+            price = data.get('price', 'N/A')
+            time = data.get('time', hora_manaus.strftime("%H:%M:%S"))
+            timeframe = data.get('timeframe', 'N/A')
+            strength = data.get('strength', 'N/A')
+            details = data.get('details', 'Sinal confirmado!')
         # Adicionar formatação básica para alertas de texto
-        current_time = datetime.now().strftime("%H:%M:%S")
+        current_time = hora_manaus.strftime("%H:%M:%S")
         
         message = f"""🚀 *FOGUETE TURBO V7* 📈
 
@@ -119,6 +135,8 @@ def format_simple_alert(text):
 
 {text}
 
+📈 Ativo: *{ticker}*
+💲 Sinal: *{action}*
 ⏰ Horário: *{current_time}*
 🤖 Via: *TradingView Webhook*
 
@@ -128,7 +146,7 @@ def format_simple_alert(text):
         
     except Exception as e:
         logger.error(f"❌ Erro ao formatar alerta simples: {str(e)}")
-        return f"🚀 FOGUETE TURBO V7\n\n{text}\n\n⏰ {datetime.now().strftime('%H:%M:%S')}"
+        return f"🚀 FOGUETE TURBO V7\n\n{text}\n\n⏰ {hora_manaus.strftime('%H:%M:%S')}"
 
 @app.route('/', methods=['GET'])
 def home():
@@ -139,7 +157,7 @@ def home():
         "status": "🚀 FOGUETE TURBO V7 - Bot Telegram Online!",
         "platform": "Render + GitHub",
         "bot_configured": bool(BOT_TOKEN and CHAT_ID),
-        "timestamp": datetime.now().isoformat(),
+        "timestamp": hora_manaus.isoformat(),
         "endpoints": {
             "webhook": "/webhook",
             "test": "/test", 
@@ -182,7 +200,7 @@ def webhook():
                 return jsonify({
                     "status": "success",
                     "message": "Alerta enviado com sucesso para Telegram!",
-                    "timestamp": datetime.now().isoformat(),
+                    "timestamp": hora_manaus.isoformat(),
                     "platform": "Render + GitHub"
                 })
             else:
@@ -210,8 +228,8 @@ def test():
 📱 Telegram: *Conectado*
 🌐 Webhook: *Ativo*
 ☁️ Plataforma: *Render + GitHub*
-⏰ Horário: *{datetime.now().strftime("%H:%M:%S")}*
-📅 Data: *{datetime.now().strftime("%d/%m/%Y")}*
+⏰ Horário: *{hora_manaus.strftime("%H:%M:%S")}*
+📅 Data: *{hora_manaus.strftime("%d/%m/%Y")}*
 
 💡 *Pronto para receber alertas do TradingView!*
 
@@ -226,7 +244,7 @@ def test():
                 "bot_token_configured": bool(BOT_TOKEN),
                 "chat_id_configured": bool(CHAT_ID),
                 "platform": "Render + GitHub",
-                "timestamp": datetime.now().isoformat()
+                "timestamp": hora_manaus.isoformat()
             })
         else:
             return jsonify({
@@ -271,7 +289,7 @@ def health():
     """
     return jsonify({
         "status": "healthy",
-        "timestamp": datetime.now().isoformat()
+        "timestamp": hora_manaus.isoformat()
     })
 
 if __name__ == '__main__':
