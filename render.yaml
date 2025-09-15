@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: foguete-turbo-v7-bot
+    name: foguete-turbo-v7-bot-corrigido
     env: python
     buildCommand: pip install -r requirements.txt
     startCommand: gunicorn app:app
