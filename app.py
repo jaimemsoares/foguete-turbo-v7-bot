@@ -265,7 +265,7 @@ def status():
         "platform": "Render + GitHub",
         "bot_token_configured": bool(BOT_TOKEN),
         "chat_id_configured": bool(CHAT_ID),
-        "timestamp": datetime.now().isoformat(),
+        "timestamp": hora_manaus.isoformat(),
         "endpoints": {
             "home": "/",
             "webhook": "/webhook (POST)",
