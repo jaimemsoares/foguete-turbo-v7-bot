@@ -1,117 +1,167 @@
-# 🚀 FOGUETE TURBO V7 - Bot Telegram
+# 🚀 FOGUETE TURBO V7 - Bot Telegram MELHORADO v2.0
 
-Bot para receber alertas do indicador **FOGUETE TURBO V7** do TradingView e enviar automaticamente para Telegram com formatação profissional.
+Bot inteligente para receber alertas do indicador **FOGUETE TURBO V7** do TradingView e enviar automaticamente para Telegram com **detecção inteligente de sinais** e **formatação profissional**.
 
-## 🎯 Funcionalidades
+## 🎯 Novidades v2.0
 
-- ✅ **Recebe alertas** do TradingView via webhook
-- ✅ **Envia para Telegram** com formatação melhorada
-- ✅ **Formatação profissional** com emojis e Markdown
-- ✅ **Deploy gratuito** no Render
-- ✅ **Funcionamento 24/7** automático
-- ✅ **Logs detalhados** para debug
+### ✅ **Detecção Inteligente de Sinais**
+- 🟢🚀 **MASTER** (MACD + EMAs 12/26)
+- 🚀⭐ **MASTER ESTRELA** (Stochastic + EMAs 21/50)
+- 📈📉 **SuperTrend** (BUY/SELL)
+- 📊 **Bollinger Bands** (Rejeições)
+- 🔄 **Cruzamentos SMAs** (8x21)
+- 💪 **Volume Forte**
+- 💎 **Fibonacci**
 
-## 📋 Arquivos
+### ✅ **Formatação Profissional**
+- 🎨 **Emojis específicos** para cada estratégia
+- 📱 **Markdown** para formatação rica
+- 🕐 **Horário Manaus** (UTC-4) automático
+- 📈 **Nome do ativo** detectado automaticamente
+- 💪 **Força do sinal** extraída e formatada
 
-- `app.py` - Código principal do bot Python/Flask
-- `requirements.txt` - Dependências Python
-- `render.yaml` - Configuração específica do Render
-- `runtime.txt` - Versão Python
-- `.gitignore` - Arquivos ignorados pelo Git
+### ✅ **Horário Correto**
+- 🌎 **Fuso horário Manaus/Amazonas** (UTC-4)
+- 🕐 **Conversão automática** de UTC para horário local
+- ⏰ **Timestamp preciso** em cada mensagem
 
-## 🚀 Deploy no Render
+## 📱 Exemplos de Mensagens
 
-### 1. Fork este repositório
-### 2. Conectar ao Render
-### 3. Configurar variáveis de ambiente:
-- `BOT_TOKEN`: Token do bot Telegram
-- `CHAT_ID`: ID do canal/grupo Telegram
-
-### 4. Deploy automático!
-
-## 🔗 Endpoints
-
-- `/` - Status do bot e informações
-- `/webhook` - Receber alertas do TradingView (POST)
-- `/test` - Testar envio de mensagem
-- `/status` - Verificar configuração completa
-- `/health` - Health check
-
-## 🎯 Como Usar
-
-1. **Configure o webhook** no TradingView:
-   ```
-   https://seu-app.onrender.com/webhook
-   ```
-
-2. **Teste o funcionamento**:
-   ```
-   https://seu-app.onrender.com/test
-   ```
-
-3. **Verifique o status**:
-   ```
-   https://seu-app.onrender.com/status
-   ```
-
-## 📱 Exemplo de Mensagem
-
+### 🟢 MASTER COMPRA
 ```
 🚀 FOGUETE TURBO V7 📈
 
-💰 COMPRA CONFIRMADA!
+🟢🚀 MASTER COMPRA!
 📈 Ativo: BTCUSDT
-💲 Preço: 45,230.50
-⏰ Horário: 15:30:45
-📅 TF: 1h
+⏰ Horário: 16:30:45 (Manaus)
 💪 Força: 8/10 (80%)
 
-🎯 Detalhes:
-SuperTrend BUY + MACD positivo + Volume forte
+🎯 Estratégia MASTER:
+MACD + EMAs 12/26
 
-#FogueteTurbo #TradingView #Alertas
+💰 Sinal confirmado!
+
+#Master #FogueteTurbo #TradingView
 ```
 
-## 🔧 Configuração
-
-### Variáveis de Ambiente (Render)
+### 🚀⭐ MASTER ESTRELA
 ```
-BOT_TOKEN=seu_token_do_bot_telegram
-CHAT_ID=id_do_seu_canal_telegram
-```
+🚀 FOGUETE TURBO V7 ⭐
 
-### Token do Bot
-1. Fale com @BotFather no Telegram
-2. Crie um novo bot: `/newbot`
-3. Copie o token gerado
+🚀⭐ MASTER ESTRELA COMPRA!
+📈 Ativo: ETHUSDT
+⏰ Horário: 16:30:45 (Manaus)
+💪 Força: 9/10 (90%)
 
-### Chat ID
-1. Adicione @userinfobot ao seu canal
-2. Ele mostrará o Chat ID automaticamente
-3. Remova o bot depois
+🎯 Estratégia ESTRELA:
+Stochastic + EMAs 21/50
 
-## 🛠️ Desenvolvimento Local
+⭐ Sinal premium confirmado!
 
-```bash
-# Instalar dependências
-pip install -r requirements.txt
-
-# Configurar variáveis de ambiente
-export BOT_TOKEN="seu_token"
-export CHAT_ID="seu_chat_id"
-
-# Executar
-python app.py
+#MasterEstrela #FogueteTurbo #TradingView
 ```
 
-## 📞 Suporte
+### 📈 SuperTrend
+```
+🚀 FOGUETE TURBO V7 📈
 
-- Verifique os logs no Render
-- Teste endpoints individualmente
-- Confirme configuração das variáveis
-- Verifique permissões do bot no Telegram
+📈🟢 SUPERTREND COMPRA!
+📈 Ativo: ADAUSDT
+⏰ Horário: 16:30:45 (Manaus)
+💪 Força: 70%
+
+🎯 SuperTrend:
+Mudança de tendência confirmada
+
+💰 Sinal de entrada!
+
+#SuperTrend #FogueteTurbo #TradingView
+```
+
+## 🔧 Recursos Técnicos
+
+### 🤖 **Detecção Automática**
+- **Regex patterns** para identificar tipos de sinal
+- **Análise de contexto** da mensagem
+- **Classificação inteligente** por estratégia
+
+### 🕐 **Fuso Horário**
+- **UTC-4** (Manaus/Amazonas)
+- **Conversão automática** de timestamps
+- **Sem horário de verão** (Amazonas não tem)
+
+### 📊 **Extração de Dados**
+- **Nome do ativo** via regex
+- **Força/porcentagem** automática
+- **Tipo de sinal** por palavras-chave
+
+## 🚀 Deploy e Configuração
+
+### 1. **GitHub + Render**
+- Deploy automático via GitHub
+- Configuração via variáveis de ambiente
+- 100% gratuito
+
+### 2. **Variáveis de Ambiente**
+```
+BOT_TOKEN=7264851459:AAFLS0qBfjl3QhHFSpcT4sdERVIqvxRo8q8
+CHAT_ID=seu_chat_id_aqui
+```
+
+### 3. **Endpoints**
+- `/` - Status e informações
+- `/webhook` - Receber alertas TradingView
+- `/test` - Teste com formatação melhorada
+- `/test-signals` - Testar detecção de sinais
+- `/status` - Status completo com recursos
+
+## 🎯 Melhorias Implementadas
+
+### ✅ **Problemas Resolvidos**
+- ❌ **Antes**: Mensagens simples sem formatação
+- ✅ **Depois**: Formatação profissional com emojis
+
+- ❌ **Antes**: Horário UTC confuso
+- ✅ **Depois**: Horário Manaus correto
+
+- ❌ **Antes**: Sem nome do ativo
+- ✅ **Depois**: Ativo detectado automaticamente
+
+- ❌ **Antes**: Sem diferenciação de sinais
+- ✅ **Depois**: Cada sinal com emoji específico
+
+### 🎨 **Formatação Inteligente**
+- **MASTER**: 🟢🚀/🔴🚀 com estratégia MACD
+- **MASTER ESTRELA**: 🚀⭐ com estratégia Stochastic
+- **SuperTrend**: 📈🟢/📉🔴 com mudança de tendência
+- **Bollinger**: 📊 com tipo de rejeição
+- **SMAs**: 🔄 com direção do cruzamento
+- **Volume**: 💪 com força detectada
+
+## 🛠️ Desenvolvimento
+
+### **Estrutura do Código**
+```python
+# Detecção de sinais
+detect_signal_type(message)
+
+# Formatação específica
+get_signal_emoji_and_action(signal_type)
+
+# Extração de dados
+extract_asset_name(message)
+extract_strength(message)
+
+# Fuso horário
+get_manaus_time()
+```
+
+### **Testes**
+- `/test` - Teste geral
+- `/test-signals` - Teste de detecção
+- Logs detalhados para debug
 
 ---
 
-## 🚀 FOGUETE TURBO V7 - Sistema completo de alertas automáticos!
+## 🚀 FOGUETE TURBO V7 v2.0 - Sistema inteligente de alertas profissionais!
 
