@@ -117,15 +117,7 @@ def format_simple_alert(data):
     Formata alertas simples de texto do TradingView
     """
     try:
-        if isinstance(data, dict):
-            # Verificar se tem campos específicos do TradingView
-            ticker = data.get('ticker', 'N/A')
-            action = data.get('action', 'SINAL')
-            price = data.get('price', 'N/A')
-            time = data.get('time', hora_manaus.strftime("%H:%M:%S"))
-            timeframe = data.get('timeframe', 'N/A')
-            strength = data.get('strength', 'N/A')
-            details = data.get('details', 'Sinal confirmado!')
+        
         # Adicionar formatação básica para alertas de texto
         current_time = hora_manaus.strftime("%H:%M:%S")
         
@@ -135,8 +127,7 @@ def format_simple_alert(data):
 
 {data}
 
-📈 Ativo: *{ticker}*
-💲 Sinal: *{action}*
+
 ⏰ Horário: *{current_time}*
 🤖 Via: *TradingView Webhook*
 
