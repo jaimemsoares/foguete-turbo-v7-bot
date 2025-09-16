@@ -1,109 +1,117 @@
-# 🚀 FOGUETE TURBO V7 - BOT TELEGRAM CORRIGIDO
+# 🚀 FOGUETE TURBO V7 - Bot Telegram
 
-## ✅ PROBLEMAS CORRIGIDOS
+Bot para receber alertas do indicador **FOGUETE TURBO V7** do TradingView e enviar automaticamente para Telegram com formatação profissional.
 
-### 🚫 **DUPLICAÇÃO DE SINAIS**
-- **Problema**: Sinais apareciam duplicados no Telegram
-- **Solução**: Sistema de cache com hash das mensagens
-- **Resultado**: Apenas 1 sinal por evento
+## 🎯 Funcionalidades
 
-### 🏷️ **NOME DO ATIVO INCORRETO**
-- **Problema**: Aparecia "ATIVO" em vez do ticker real (BTC, ETHUSDT, etc.)
-- **Solução**: Extração inteligente do ticker das mensagens
-- **Resultado**: Nome correto do ativo em todos os sinais
+- ✅ **Recebe alertas** do TradingView via webhook
+- ✅ **Envia para Telegram** com formatação melhorada
+- ✅ **Formatação profissional** com emojis e Markdown
+- ✅ **Deploy gratuito** no Render
+- ✅ **Funcionamento 24/7** automático
+- ✅ **Logs detalhados** para debug
 
-## 🔧 MELHORIAS IMPLEMENTADAS
+## 📋 Arquivos
 
-### 📊 **DETECÇÃO INTELIGENTE DE TICKER**
-```python
-# Padrões suportados:
-- 📈 Ativo: *BTCUSDT*
-- Ativo: ETHUSDT
-- | ADAUSDT (final da mensagem)
-- Contexto: BTC, ETH, etc.
-```
+- `app.py` - Código principal do bot Python/Flask
+- `requirements.txt` - Dependências Python
+- `render.yaml` - Configuração específica do Render
+- `runtime.txt` - Versão Python
+- `.gitignore` - Arquivos ignorados pelo Git
 
-### 🚫 **SISTEMA ANTI-DUPLICAÇÃO**
-```python
-# Cache de mensagens por 60 segundos
-# Hash MD5 para identificar duplicatas
-# Limpeza automática do cache
-```
+## 🚀 Deploy no Render
 
-### 🎯 **FORMATAÇÃO MELHORADA**
-- Emojis consistentes
-- Markdown formatado
-- Informações organizadas
-- Hashtags para filtros
+### 1. Fork este repositório
+### 2. Conectar ao Render
+### 3. Configurar variáveis de ambiente:
+- `BOT_TOKEN`: Token do bot Telegram
+- `CHAT_ID`: ID do canal/grupo Telegram
 
-## 🚀 COMO USAR
+### 4. Deploy automático!
 
-### 1️⃣ **DEPLOY NO RENDER**
-1. Faça fork deste repositório no GitHub
-2. Conecte ao Render.com
-3. Configure as variáveis de ambiente:
-   - `BOT_TOKEN`: Token do seu bot Telegram
-   - `CHAT_ID`: ID do canal/grupo Telegram
+## 🔗 Endpoints
 
-### 2️⃣ **CONFIGURAR WEBHOOK NO TRADINGVIEW**
-1. Copie a URL do Render: `https://seu-app.onrender.com/webhook`
-2. Configure nos alertas do TradingView
-3. Use o formato de mensagem do FOGUETE TURBO V7
+- `/` - Status do bot e informações
+- `/webhook` - Receber alertas do TradingView (POST)
+- `/test` - Testar envio de mensagem
+- `/status` - Verificar configuração completa
+- `/health` - Health check
 
-### 3️⃣ **TESTAR O BOT**
-- Acesse: `https://seu-app.onrender.com/test`
-- Verifique se a mensagem chegou no Telegram
-- Status: `https://seu-app.onrender.com/status`
+## 🎯 Como Usar
 
-## 📋 ENDPOINTS DISPONÍVEIS
+1. **Configure o webhook** no TradingView:
+   ```
+   https://seu-app.onrender.com/webhook
+   ```
 
-- **`/`** - Página inicial e status
-- **`/webhook`** - Receber alertas do TradingView
-- **`/test`** - Enviar mensagem de teste
-- **`/status`** - Status detalhado do bot
+2. **Teste o funcionamento**:
+   ```
+   https://seu-app.onrender.com/test
+   ```
 
-## ✅ RESULTADOS ESPERADOS
+3. **Verifique o status**:
+   ```
+   https://seu-app.onrender.com/status
+   ```
 
-### **ANTES (COM PROBLEMAS):**
+## 📱 Exemplo de Mensagem
+
 ```
 🚀 FOGUETE TURBO V7 📈
-Ativo: ATIVO
-Horário: 17:00:06
 
-🚀 FOGUETE TURBO V7 📈  
-Ativo: ATIVO
-Horário: 17:00:07
-```
-
-### **DEPOIS (CORRIGIDO):**
-```
-🚀 FOGUETE TURBO V7 📈
+💰 COMPRA CONFIRMADA!
 📈 Ativo: BTCUSDT
-⏰ Horário: 17:00:06
-💪 Força: 70%
+💲 Preço: 45,230.50
+⏰ Horário: 15:30:45
+📅 TF: 1h
+💪 Força: 8/10 (80%)
 
-🎯 SuperTrend: Mudança confirmada
+🎯 Detalhes:
+SuperTrend BUY + MACD positivo + Volume forte
+
+#FogueteTurbo #TradingView #Alertas
 ```
 
-## 🔧 CONFIGURAÇÕES TÉCNICAS
+## 🔧 Configuração
 
-- **Python**: 3.9+
-- **Framework**: Flask
-- **Deploy**: Render.com (gratuito)
-- **Cache**: Memória (60 segundos)
-- **Timeout**: 10 segundos por requisição
+### Variáveis de Ambiente (Render)
+```
+BOT_TOKEN=seu_token_do_bot_telegram
+CHAT_ID=id_do_seu_canal_telegram
+```
 
-## 📞 SUPORTE
+### Token do Bot
+1. Fale com @BotFather no Telegram
+2. Crie um novo bot: `/newbot`
+3. Copie o token gerado
 
-Se ainda houver problemas:
-1. Verifique os logs no Render
-2. Teste o endpoint `/test`
-3. Confirme as variáveis de ambiente
-4. Verifique se o bot tem permissões no canal
+### Chat ID
+1. Adicione @userinfobot ao seu canal
+2. Ele mostrará o Chat ID automaticamente
+3. Remova o bot depois
+
+## 🛠️ Desenvolvimento Local
+
+```bash
+# Instalar dependências
+pip install -r requirements.txt
+
+# Configurar variáveis de ambiente
+export BOT_TOKEN="seu_token"
+export CHAT_ID="seu_chat_id"
+
+# Executar
+python app.py
+```
+
+## 📞 Suporte
+
+- Verifique os logs no Render
+- Teste endpoints individualmente
+- Confirme configuração das variáveis
+- Verifique permissões do bot no Telegram
 
 ---
 
-## 🚀 FOGUETE TURBO V7 - VERSÃO CORRIGIDA
-**Desenvolvido por: Jaime Martins & IA**  
-**Data**: Setembro 2025
+## 🚀 FOGUETE TURBO V7 - Sistema completo de alertas automáticos!
 

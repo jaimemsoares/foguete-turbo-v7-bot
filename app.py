@@ -1,20 +1,18 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-🚀 FOGUETE TURBO V7 - BOT TELEGRAM CORRIGIDO
+🚀 FOGUETE TURBO V7 - BOT TELEGRAM (RENDER + GITHUB)
 Webhook para receber alertas do TradingView e enviar para Telegram
-CORREÇÕES: Duplicação de sinais + Nome do ativo correto
+Deploy: GitHub → Render (100% Gratuito)
 """
 
 import os
 import json
 import requests
-import re
 from flask import Flask, request, jsonify
 from datetime import datetime
 import logging
-import hashlib
-import time
+import pytz
 
 # Configurar logging
 logging.basicConfig(level=logging.INFO)
@@ -23,120 +21,26 @@ logger = logging.getLogger(__name__)
 # Inicializar Flask
 app = Flask(__name__)
 
+# Define o fuso horário de Manaus
+manaus_tz = pytz.timezone('America/Manaus')
+
+# Obtém a hora atual no fuso horário de Manaus
+hora_manaus = datetime.now(manaus_tz)
+
 # Configurações do bot (variáveis de ambiente do Render)
 BOT_TOKEN = os.environ.get('BOT_TOKEN')
 CHAT_ID = os.environ.get('CHAT_ID')
-
-# Cache para evitar duplicação de sinais (armazena hash das mensagens por 60 segundos)
-message_cache = {}
-CACHE_DURATION = 60  # segundos
 
 # Verificar se as variáveis estão configuradas
 if not BOT_TOKEN or not CHAT_ID:
     logger.error("❌ BOT_TOKEN ou CHAT_ID não configurados!")
     logger.error("Configure as variáveis de ambiente no Render")
 
-def clean_cache():
-    """Remove mensagens antigas do cache"""
-    current_time = time.time()
-    expired_keys = [key for key, timestamp in message_cache.items() 
-                   if current_time - timestamp > CACHE_DURATION]
-    for key in expired_keys:
-        del message_cache[key]
-
-def is_duplicate_message(message):
-    """Verifica se a mensagem é duplicada usando hash"""
-    clean_cache()
-    
-    # Criar hash da mensagem (ignorando timestamp para detectar duplicatas reais)
-    message_without_time = re.sub(r'⏰ Horário: \*\d{2}:\d{2}:\d{2}\*', '', message)
-    message_hash = hashlib.md5(message_without_time.encode()).hexdigest()
-    
-    current_time = time.time()
-    
-    if message_hash in message_cache:
-        # Mensagem duplicada detectada
-        logger.warning(f"🚫 Mensagem duplicada detectada: {message_hash}")
-        return True
-    
-    # Adicionar ao cache
-    message_cache[message_hash] = current_time
-    return False
-
-def extract_ticker_from_message(message):
-    """Extrai o ticker do ativo da mensagem do TradingView"""
-    try:
-        # Padrões para extrair ticker
-        patterns = [
-            r'📈 Ativo: \*([A-Z0-9]+)\*',  # Formato: 📈 Ativo: *BTCUSDT*
-            r'Ativo: \*([A-Z0-9]+)\*',     # Formato: Ativo: *BTCUSDT*
-            r'📈 Ativo: ([A-Z0-9]+)',      # Formato: 📈 Ativo: BTCUSDT
-            r'Ativo: ([A-Z0-9]+)',         # Formato: Ativo: BTCUSDT
-            r'\| ([A-Z0-9]+)$',            # Formato: | BTCUSDT (final da linha)
-        ]
-        
-        for pattern in patterns:
-            match = re.search(pattern, message)
-            if match:
-                ticker = match.group(1)
-                if ticker and ticker != "ATIVO" and len(ticker) >= 3:
-                    return ticker
-        
-        # Se não encontrou, tentar extrair de contexto
-        if "BTC" in message.upper():
-            if "USDT" in message.upper():
-                return "BTCUSDT"
-            elif "USD" in message.upper():
-                return "BTCUSD"
-            else:
-                return "BTC"
-        elif "ETH" in message.upper():
-            if "USDT" in message.upper():
-                return "ETHUSDT"
-            elif "USD" in message.upper():
-                return "ETHUSD"
-            else:
-                return "ETH"
-        
-        return "CRYPTO"  # Fallback genérico
-        
-    except Exception as e:
-        logger.error(f"❌ Erro ao extrair ticker: {str(e)}")
-        return "CRYPTO"
-
-def fix_ticker_in_message(message):
-    """Corrige o ticker 'ATIVO' na mensagem"""
-    try:
-        # Se a mensagem contém "ATIVO", tentar extrair o ticker real
-        if "ATIVO" in message:
-            real_ticker = extract_ticker_from_message(message)
-            
-            # Substituir todas as ocorrências de "ATIVO" pelo ticker real
-            message = message.replace("Ativo: ATIVO", f"Ativo: {real_ticker}")
-            message = message.replace("📈 Ativo: *ATIVO*", f"📈 Ativo: *{real_ticker}*")
-            message = message.replace("Ativo: *ATIVO*", f"Ativo: *{real_ticker}*")
-            
-            logger.info(f"✅ Ticker corrigido: ATIVO → {real_ticker}")
-        
-        return message
-        
-    except Exception as e:
-        logger.error(f"❌ Erro ao corrigir ticker: {str(e)}")
-        return message
-
 def send_telegram_message(message, parse_mode='Markdown'):
     """
-    Envia mensagem para o Telegram com verificação de duplicação
+    Envia mensagem para o Telegram
     """
     try:
-        # Verificar se é mensagem duplicada
-        if is_duplicate_message(message):
-            logger.info("🚫 Mensagem duplicada ignorada")
-            return True  # Retorna True para não gerar erro, mas não envia
-        
-        # Corrigir ticker na mensagem
-        message = fix_ticker_in_message(message)
-        
         url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
         
         data = {
@@ -176,10 +80,10 @@ def format_tradingview_alert(data):
         # Se for dict, extrair informações
         if isinstance(data, dict):
             # Verificar se tem campos específicos do TradingView
-            ticker = data.get('ticker', extract_ticker_from_message(str(data)))
+            ticker = data.get('ticker', 'N/A')
             action = data.get('action', 'SINAL')
             price = data.get('price', 'N/A')
-            time = data.get('time', datetime.now().strftime("%H:%M:%S"))
+            time = data.get('time', hora_manaus.strftime("%H:%M:%S"))
             timeframe = data.get('timeframe', 'N/A')
             strength = data.get('strength', 'N/A')
             details = data.get('details', 'Sinal confirmado!')
@@ -208,33 +112,33 @@ def format_tradingview_alert(data):
         logger.error(f"❌ Erro ao formatar alerta: {str(e)}")
         return format_simple_alert(str(data))
 
-def format_simple_alert(text):
+def format_simple_alert(data):
     """
     Formata alertas simples de texto do TradingView
     """
     try:
-        # Extrair ticker da mensagem
-        ticker = extract_ticker_from_message(text)
-        
-        # Corrigir ticker na mensagem original
-        text = fix_ticker_in_message(text)
-        
-        # Se a mensagem já está formatada (contém emojis), enviar como está
-        if "🚀" in text and "*" in text:
-            return text
-        
-        # Caso contrário, adicionar formatação básica
-        current_time = datetime.now().strftime("%H:%M:%S")
+        if isinstance(data, dict):
+            # Verificar se tem campos específicos do TradingView
+            ticker = data.get('ticker', 'N/A')
+            action = data.get('action', 'SINAL')
+            price = data.get('price', 'N/A')
+            time = data.get('time', hora_manaus.strftime("%H:%M:%S"))
+            timeframe = data.get('timeframe', 'N/A')
+            strength = data.get('strength', 'N/A')
+            details = data.get('details', 'Sinal confirmado!')
+        # Adicionar formatação básica para alertas de texto
+        current_time = hora_manaus.strftime("%H:%M:%S")
         
         message = f"""🚀 *FOGUETE TURBO V7* 📈
 
 📢 *ALERTA RECEBIDO:*
 
-{text}
+{data}
 
-📈 *Ativo:* {ticker}
-⏰ *Horário:* {current_time}
-🤖 *Via:* TradingView Webhook
+📈 Ativo: *{ticker}*
+💲 Sinal: *{action}*
+⏰ Horário: *{current_time}*
+🤖 Via: *TradingView Webhook*
 
 #FogueteTurbo #Alerta #TradingView"""
         
@@ -242,7 +146,7 @@ def format_simple_alert(text):
         
     except Exception as e:
         logger.error(f"❌ Erro ao formatar alerta simples: {str(e)}")
-        return f"🚀 FOGUETE TURBO V7\n\n{text}\n\n⏰ {datetime.now().strftime('%H:%M:%S')}"
+        return f"🚀 FOGUETE TURBO V7\n\n{text}\n\n⏰ {hora_manaus.strftime('%H:%M:%S')}"
 
 @app.route('/', methods=['GET'])
 def home():
@@ -250,15 +154,10 @@ def home():
     Página inicial - verificar se o bot está funcionando
     """
     return jsonify({
-        "status": "🚀 FOGUETE TURBO V7 - Bot Telegram Online! (VERSÃO CORRIGIDA)",
+        "status": "🚀 FOGUETE TURBO V7 - Bot Telegram Online!",
         "platform": "Render + GitHub",
         "bot_configured": bool(BOT_TOKEN and CHAT_ID),
-        "timestamp": datetime.now().isoformat(),
-        "fixes": [
-            "✅ Duplicação de sinais corrigida",
-            "✅ Nome do ativo corrigido",
-            "✅ Cache de mensagens implementado"
-        ],
+        "timestamp": hora_manaus.isoformat(),
         "endpoints": {
             "webhook": "/webhook",
             "test": "/test", 
@@ -294,19 +193,15 @@ def webhook():
         if data:
             formatted_message = format_tradingview_alert(data)
             
-            # Enviar para Telegram (com verificação de duplicação interna)
+            # Enviar para Telegram
             success = send_telegram_message(formatted_message)
             
             if success:
                 return jsonify({
                     "status": "success",
-                    "message": "Alerta processado com sucesso!",
-                    "timestamp": datetime.now().isoformat(),
-                    "platform": "Render + GitHub (VERSÃO CORRIGIDA)",
-                    "fixes_applied": [
-                        "Verificação de duplicação",
-                        "Correção do ticker do ativo"
-                    ]
+                    "message": "Alerta enviado com sucesso para Telegram!",
+                    "timestamp": hora_manaus.isoformat(),
+                    "platform": "Render + GitHub"
                 })
             else:
                 return jsonify({
@@ -327,29 +222,34 @@ def test():
     Endpoint para testar o bot
     """
     try:
-        test_message = """🚀 *FOGUETE TURBO V7* 📈
+        test_message = f"""🚀 *TESTE - FOGUETE TURBO V7* ✅
 
-🧪 *TESTE DO BOT*
-📈 Ativo: *BTCUSDT*
-⏰ Horário: *""" + datetime.now().strftime("%H:%M:%S") + """*
+🎯 *Bot funcionando perfeitamente!*
+📱 Telegram: *Conectado*
+🌐 Webhook: *Ativo*
+☁️ Plataforma: *Render + GitHub*
+⏰ Horário: *{hora_manaus.strftime("%H:%M:%S")}*
+📅 Data: *{hora_manaus.strftime("%d/%m/%Y")}*
 
-✅ *Bot funcionando corretamente!*
-🔧 *Versão:* Corrigida (sem duplicação)
+💡 *Pronto para receber alertas do TradingView!*
 
-#Teste #FogueteTurbo"""
-
+#Teste #BotOnline #FogueteTurbo"""
+        
         success = send_telegram_message(test_message)
         
         if success:
             return jsonify({
                 "status": "success",
-                "message": "Mensagem de teste enviada!",
-                "timestamp": datetime.now().isoformat()
+                "message": "✅ Mensagem de teste enviada para Telegram!",
+                "bot_token_configured": bool(BOT_TOKEN),
+                "chat_id_configured": bool(CHAT_ID),
+                "platform": "Render + GitHub",
+                "timestamp": hora_manaus.isoformat()
             })
         else:
             return jsonify({
-                "status": "error", 
-                "message": "Erro ao enviar mensagem de teste"
+                "status": "error",
+                "message": "❌ Erro ao enviar mensagem de teste"
             }), 500
             
     except Exception as e:
@@ -358,22 +258,51 @@ def test():
 @app.route('/status', methods=['GET'])
 def status():
     """
-    Status do bot e estatísticas
+    Verificar status completo do bot
     """
     return jsonify({
-        "bot_status": "online",
-        "version": "FOGUETE TURBO V7 - CORRIGIDO",
-        "bot_configured": bool(BOT_TOKEN and CHAT_ID),
-        "cache_size": len(message_cache),
-        "fixes": {
-            "duplicate_prevention": "✅ Ativo",
-            "ticker_correction": "✅ Ativo", 
-            "message_cache": "✅ Ativo"
+        "bot_online": True,
+        "platform": "Render + GitHub",
+        "bot_token_configured": bool(BOT_TOKEN),
+        "chat_id_configured": bool(CHAT_ID),
+        "timestamp": hora_manaus.isoformat(),
+        "endpoints": {
+            "home": "/",
+            "webhook": "/webhook (POST)",
+            "test": "/test (GET/POST)",
+            "status": "/status (GET)"
         },
-        "timestamp": datetime.now().isoformat()
+        "configuration": {
+            "bot_token": "✅ Configurado" if BOT_TOKEN else "❌ Não configurado",
+            "chat_id": "✅ Configurado" if CHAT_ID else "❌ Não configurado"
+        },
+        "instructions": {
+            "webhook_url": "Use esta URL nos alertas do TradingView: https://SEU-APP.onrender.com/webhook",
+            "test_url": "Teste o bot em: https://SEU-APP.onrender.com/test"
+        }
+    })
+
+@app.route('/health', methods=['GET'])
+def health():
+    """
+    Health check para o Render
+    """
+    return jsonify({
+        "status": "healthy",
+        "timestamp": hora_manaus.isoformat()
     })
 
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 5000))
+    # Porta do Render (padrão 10000)
+    port = int(os.environ.get('PORT', 10000))
+    
+    # Log de inicialização
+    logger.info("🚀 Iniciando FOGUETE TURBO V7 Bot...")
+    logger.info("☁️ Plataforma: Render + GitHub")
+    logger.info(f"🌐 Porta: {port}")
+    logger.info(f"🤖 Bot Token: {'✅ Configurado' if BOT_TOKEN else '❌ Não configurado'}")
+    logger.info(f"💬 Chat ID: {'✅ Configurado' if CHAT_ID else '❌ Não configurado'}")
+    
+    # Iniciar servidor
     app.run(host='0.0.0.0', port=port, debug=False)
 
