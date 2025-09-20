@@ -94,7 +94,6 @@ def format_tradingview_alert(data):
 💰 *{action.upper()}*
 📈 Ativo: *{ticker}*
 💲 Preço: *{price}*
-⏰ Horário: *{time}*
 📅 TF: *{timeframe}*
 💪 Força: *{strength}*
 
