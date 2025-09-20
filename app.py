@@ -127,7 +127,6 @@ def format_simple_alert(data):
 {data}
 
 
-⏰ Horário: *{current_time}*
 🤖 Via: *TradingView Webhook*
 
 #FogueteTurbo #Alerta #TradingView"""
@@ -218,7 +217,6 @@ def test():
 📱 Telegram: *Conectado*
 🌐 Webhook: *Ativo*
 ☁️ Plataforma: *Render + GitHub*
-⏰ Horário: *{hora_manaus.strftime("%H:%M:%S")}*
 📅 Data: *{hora_manaus.strftime("%d/%m/%Y")}*
 
 💡 *Pronto para receber alertas do TradingView!*
